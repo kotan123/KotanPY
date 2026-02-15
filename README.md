@@ -11,6 +11,13 @@ A feature-rich Snake game built with Pygame. 10 color themes, 3 game modes, smoo
 - **Walls Mode** — deadly walls + level obstacles
 - **Speed Mode** — starts fast, gets faster
 
+### [MiniGamesArcade](./MiniGamesArcade)
+12 mini games in one app, built with Pygame. No external assets — everything is drawn with code.
+
+- **Games:** Pong, Flappy Bird, Breakout, Space Invaders, Asteroids, Memory Match, Dodge Master, Color Catch, Meteor Storm, Platform Jump, Tank Battle, Rhythm Tap
+- **4 color themes** — Neon, Ocean, Sunset, Matrix
+- **Features:** particle effects, double jump, control hints, progressive difficulty
+
 ### [Calculators](./Calculators)
 Two calculator apps:
 
@@ -20,7 +27,7 @@ Two calculator apps:
 ## Requirements
 
 - Python 3.8+
-- `pygame` (for NeonSnake)
+- `pygame` (for NeonSnake & MiniGamesArcade)
 - `tkinter` (for Smart Calculator, included with Python)
 
 ## Quick Start
@@ -28,6 +35,9 @@ Two calculator apps:
 ```bash
 # Install pygame for the snake game
 pip install pygame
+
+# Run Mini Games Arcade
+python MiniGamesArcade/mini_games.pyw
 
 # Run NeonSnake
 python NeonSnake/snake.pyw
