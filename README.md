@@ -1,8 +1,17 @@
 # KotanPY
 
-A collection of open-source Python projects by **kotan123**.
+A collection of open-source Python projects by **Kotan123**.
 
 ## Projects
+
+### [PyLearn](./PyLearn) 🆕
+Interactive Python Learning Desktop App with built-in AI Assistant. Built with PyQt6.
+
+- **20 structured lessons** — from variables to data structures
+- **Advanced code editor** — IntelliJ-style autocomplete, syntax highlighting, bracket matching, multi-tab
+- **🤖 PyLearn AI** — free AI coding assistant (no API key needed), multilingual
+- **4 themes** — Midnight, Ocean, Sunset, Forest
+- **Built-in console** — run code with Ctrl+Enter
 
 ### [NeonSnake](./NeonSnake)
 A feature-rich Snake game built with Pygame. 10 color themes, 3 game modes, smooth animations, particle effects, powerups and combo system.
@@ -26,15 +35,19 @@ Two calculator apps:
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.10+
+- `PyQt6` (for PyLearn)
 - `pygame` (for NeonSnake & MiniGamesArcade)
 - `tkinter` (for Smart Calculator, included with Python)
 
 ## Quick Start
 
 ```bash
-# Install pygame for the snake game
-pip install pygame
+# Install dependencies
+pip install PyQt6 pygame
+
+# Run PyLearn
+python PyLearn/python_learner.py
 
 # Run Mini Games Arcade
 python MiniGamesArcade/mini_games.pyw
@@ -44,11 +57,16 @@ python NeonSnake/snake.pyw
 
 # Run Smart Calculator
 python Calculators/smart_calculator.pyw
-
-# Run Terminal Calculator
-python Calculators/calculator.py
 ```
+
+## Downloads
+
+Standalone `.exe` files available in [Releases](https://github.com/kotan123/KotanPY/releases) — no installation required.
 
 ## License
 
 MIT License — free to use, modify, and distribute. See [LICENSE](./LICENSE).
+
+---
+
+**By Kotan123**
