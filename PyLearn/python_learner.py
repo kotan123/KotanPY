@@ -360,7 +360,7 @@ class CodeEditor(QPlainTextEdit):
         self.hl = PythonHL(self.document())
         self._bracket_selections = []
 
-        # Autocomplete — IntelliJ-style
+        # Autocomplete — Smart style
         self._completer = QCompleter(_ALL_WORDS, self)
         self._completer.setWidget(self)
         self._completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
