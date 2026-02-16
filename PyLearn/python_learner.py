@@ -9,12 +9,12 @@ from PyQt6.QtWidgets import (
     QLabel, QPushButton, QTextEdit, QPlainTextEdit, QScrollArea,
     QStackedWidget, QFrame, QGraphicsDropShadowEffect, QSplitter,
     QGraphicsOpacityEffect, QSizePolicy, QCompleter, QFileDialog,
-    QLineEdit, QStatusBar, QTabBar, QTextBrowser
+    QLineEdit, QStatusBar, QTabBar
 )
 from PyQt6.QtCore import (
     Qt, QPropertyAnimation, QEasingCurve, QTimer, QSize,
     QParallelAnimationGroup, QPoint, QRect, QSequentialAnimationGroup,
-    pyqtProperty, QStringListModel, QEvent, QUrl, pyqtSignal
+    pyqtProperty, QStringListModel, QEvent
 )
 from PyQt6.QtGui import (
     QFont, QColor, QPalette, QSyntaxHighlighter, QTextCharFormat,
@@ -1372,235 +1372,7 @@ class EditorPage(QWidget):
         return t.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
 
 
-# ─── AI Assistant Page (Pollinations AI — free, no key) ───────────────────────
 
-_AI_URL = "https://text.pollinations.ai/"
-_SYS_PROMPT = ("Your name is PyLearn AI. You are the built-in Python coding assistant of the PyLearn app, created by Kotan123. "
-    "NEVER say you are ChatGPT, GPT, OpenAI, or any other AI. You are ONLY 'PyLearn AI'. "
-    "If asked who you are, say: 'I am PyLearn AI, your Python coding assistant built into PyLearn by Kotan123.' "
-    "IMPORTANT: You MUST reply in the SAME language the user writes in. "
-    "If the user writes in Russian, reply in Russian. If in English, reply in English. "
-    "When writing code, wrap it in ```python blocks. Be concise and helpful. Focus on Python. "
-    "CRITICAL: The user has PyQt6 installed (NOT PyQt5). When writing any GUI code, "
-    "ALWAYS use PyQt6 imports (from PyQt6.QtWidgets, from PyQt6.QtCore, from PyQt6.QtGui). "
-    "NEVER use PyQt5. Also in PyQt6: exec() not exec_(), and enums use full path like Qt.AlignmentFlag.AlignCenter.")
-
-
-class AiPage(QWidget):
-    _sig_response = pyqtSignal(str)
-
-    def __init__(self, insert_code_cb=None):
-        super().__init__()
-        self._insert_cb = insert_code_cb
-        self._history = []       # [{role, text}]
-        self._code_blocks = []   # collected during _render_chat
-        self._busy = False
-        self._sig_response.connect(self._on_response)
-
-        lay = QVBoxLayout(self)
-        lay.setContentsMargins(0, 0, 0, 0)
-        lay.setSpacing(0)
-
-        # Header
-        hbar = QHBoxLayout()
-        hbar.setContentsMargins(14, 8, 14, 4)
-        self._title = QLabel("🤖 AI Assistant")
-        self._title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
-        hbar.addWidget(self._title)
-        hbar.addStretch()
-        self._clear_btn = QPushButton("Clear")
-        self._clear_btn.setFont(QFont("Segoe UI", 9))
-        self._clear_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._clear_btn.setToolTip("Clear chat")
-        self._clear_btn.clicked.connect(self._clear_chat)
-        hbar.addWidget(self._clear_btn)
-        lay.addLayout(hbar)
-
-        # Gradient accent bar
-        self._accent_bar = QFrame()
-        self._accent_bar.setFixedHeight(2)
-        lay.addWidget(self._accent_bar)
-
-        # Chat area
-        self._chat = QTextBrowser()
-        self._chat.setFont(QFont("Segoe UI", 11))
-        self._chat.setOpenExternalLinks(False)
-        self._chat.setOpenLinks(False)
-        self._chat.anchorClicked.connect(self._on_link)
-        lay.addWidget(self._chat, 1)
-
-        # Input bar
-        ibar = QHBoxLayout()
-        ibar.setContentsMargins(10, 6, 10, 10)
-        ibar.setSpacing(8)
-        self._input = QLineEdit()
-        self._input.setFont(QFont("Segoe UI", 11))
-        self._input.setPlaceholderText("Ask AI to write Python code...")
-        self._input.returnPressed.connect(self._send)
-        ibar.addWidget(self._input, 1)
-        self._send_btn = GlowButton("Send")
-        self._send_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
-        self._send_btn.setFixedHeight(34)
-        self._send_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._send_btn.clicked.connect(self._send)
-        ibar.addWidget(self._send_btn)
-        lay.addLayout(ibar)
-
-    def apply_theme(self):
-        self._title.setStyleSheet(f"color:{T['text']};background:transparent;")
-        self._accent_bar.setStyleSheet(f"background:qlineargradient(x1:0,y1:0,x2:1,y2:0,"
-            f"stop:0 {T['accent']},stop:0.5 {T['accent2']},stop:1 {T['accent']});")
-        self._clear_btn.setStyleSheet(f"""QPushButton{{background:{T['bg2']};color:{T['dim']};border:none;
-            border-radius:6px;padding:4px 10px;}}
-            QPushButton:hover{{color:{T['text']};background:{T['bg3']};}}""")
-        self._chat.setStyleSheet(f"""QTextBrowser{{background:{T['bg']};color:{T['text']};border:none;padding:10px;}}
-            QScrollBar:vertical{{background:{T['bg']};width:8px;margin:0;border:none;}}
-            QScrollBar::handle:vertical{{background:{T['bg3']};border-radius:4px;min-height:30px;}}
-            QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{{background:{T['bg']};}}
-            QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{{height:0;}}""")
-        self._input.setStyleSheet(f"""QLineEdit{{background:{T['bg2']};color:{T['text']};
-            border:1px solid {T['border']};border-radius:8px;padding:8px 12px;}}
-            QLineEdit:focus{{border:1px solid {T['accent']};}}""")
-        self._send_btn.setStyleSheet(f"""QPushButton{{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,
-            stop:0 {T['accent']},stop:1 {T['accent2']});color:white;border:none;
-            border-radius:8px;padding:6px 18px;}}
-            QPushButton:hover{{background:{T['accent2']};}}
-            QPushButton:disabled{{background:{T['bg3']};color:{T['dim']};}}""")
-        self._send_btn._glow.setColor(QColor(T["accent"]))
-        self._send_btn.start_pulse()
-        self._render_chat()
-
-    def _clear_chat(self):
-        self._history.clear()
-        self._render_chat()
-
-    def _send(self):
-        msg = self._input.text().strip()
-        if not msg or self._busy:
-            return
-        self._input.clear()
-        self._input.setPlaceholderText("Thinking...")
-        self._history.append({"role": "user", "text": msg})
-        self._render_chat()
-        self._busy = True
-        self._send_btn.setEnabled(False)
-        threading.Thread(target=self._call_api, args=(msg,), daemon=True).start()
-
-    def _call_api(self, user_msg):
-        import urllib.request, json as _json, ssl
-        try:
-            ctx = ssl.create_default_context()
-            # Build messages array
-            messages = [{"role": "system", "content": _SYS_PROMPT}]
-            for h in self._history:
-                if h["role"] == "user":
-                    messages.append({"role": "user", "content": h["text"]})
-                elif h["role"] == "ai":
-                    messages.append({"role": "assistant", "content": h["text"]})
-            body = _json.dumps({"model": "openai", "messages": messages}).encode("utf-8")
-            req = urllib.request.Request(_AI_URL, data=body, headers={
-                "Content-Type": "application/json",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-            try:
-                resp = urllib.request.urlopen(req, timeout=60, context=ctx)
-            except Exception:
-                # Fallback: skip SSL verification if certs missing (frozen .exe)
-                ctx = ssl._create_unverified_context()
-                resp = urllib.request.urlopen(req, timeout=60, context=ctx)
-            with resp:
-                text = resp.read().decode("utf-8")
-            self._sig_response.emit(text)
-        except Exception as ex:
-            err = str(ex)
-            self._sig_response.emit(f"Error: {err}")
-
-    def _on_response(self, text):
-        self._history.append({"role": "ai", "text": text})
-        self._busy = False
-        self._send_btn.setEnabled(True)
-        self._input.setPlaceholderText("Ask AI to write Python code...")
-        self._render_chat()
-
-    def _append_system(self, text):
-        self._history.append({"role": "system", "text": text})
-        self._render_chat()
-
-    def _render_chat(self):
-        self._code_blocks = []
-        html = ""
-        if not self._history:
-            html += (f"<div style='text-align:center;padding:40px 20px;'>"
-                     f"<p style='color:{T['accent']};font-size:22px;font-weight:bold;'>🤖 AI Assistant</p>"
-                     f"<p style='color:{T['dim']};font-size:12px;margin-top:6px;'>"
-                     f"Ask me to write any Python code!</p>"
-                     f"<p style='color:{T['border']};font-size:10px;margin-top:20px;'>"
-                     f"Powered by PyLearn • By Kotan123</p></div>")
-        for msg in self._history:
-            if msg["role"] == "user":
-                html += self._render_user(msg["text"])
-            elif msg["role"] == "ai":
-                html += self._render_ai(msg["text"])
-            else:
-                html += f"<p style='color:{T['dim']};font-style:italic;text-align:center;'>{self._e(msg['text'])}</p>"
-        if self._busy:
-            html += f"<p style='color:{T['accent']};'>\u23f3 Thinking...</p>"
-        self._chat.setHtml(f"<div style='font-family:Segoe UI;font-size:11px;'>{html}</div>")
-        sb = self._chat.verticalScrollBar()
-        sb.setValue(sb.maximum())
-
-    def _render_user(self, text):
-        return (f"<div style='text-align:right;margin:8px 0;'>"
-                f"<span style='background:{T['accent']};color:white;padding:6px 12px;"
-                f"border-radius:12px 12px 2px 12px;display:inline-block;'>"
-                f"{self._e(text)}</span></div>")
-
-    def _render_ai(self, text):
-        parts = self._parse_response(text)
-        html = f"<div style='margin:8px 0;'>"
-        for kind, content in parts:
-            if kind == "code":
-                idx = len(self._code_blocks)
-                self._code_blocks.append(content)
-                esc = self._e(content)
-                html += (f"<pre style='background:{T['bg2']};color:{T['green']};padding:10px;"
-                         f"border-radius:8px;border:1px solid {T['border']};font-family:Consolas;"
-                         f"font-size:11px;white-space:pre-wrap;'>{esc}</pre>")
-                html += (f"<p><a href='#insert_{idx}' style='color:{T['accent']};font-size:10px;"
-                         f"text-decoration:none;'>\u25b6 Insert to Editor</a></p>")
-            else:
-                t = self._e(content)
-                t = re.sub(r'\*\*(.+?)\*\*', rf"<b>\1</b>", t)
-                t = re.sub(r'`(.+?)`', rf"<code style='background:{T['bg2']};padding:1px 4px;"
-                           f"border-radius:3px;font-family:Consolas;'>\1</code>", t)
-                t = t.replace('\n', '<br>')
-                html += f"<span style='color:{T['text']};'>{t}</span>"
-        html += "</div>"
-        return html
-
-    def _parse_response(self, text):
-        parts = []
-        chunks = re.split(r'```(?:python)?\n?', text)
-        for i, chunk in enumerate(chunks):
-            if not chunk.strip():
-                continue
-            if i % 2 == 0:
-                parts.append(("text", chunk.strip()))
-            else:
-                parts.append(("code", chunk.rstrip('`').strip()))
-        return parts
-
-    def _on_link(self, url):
-        href = url.toString()
-        if href.startswith("#insert_") and self._insert_cb:
-            try:
-                idx = int(href.split("_")[1])
-                if 0 <= idx < len(self._code_blocks):
-                    self._insert_cb(self._code_blocks[idx])
-            except (ValueError, IndexError):
-                pass
-
-    def _e(self, t):
-        return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
 # ─── Sidebar ─────────────────────────────────────────────────────────────────
@@ -1641,7 +1413,7 @@ class Sidebar(QFrame):
         lay.addSpacing(6)
 
         self.nav_btns = []
-        for text in ["📚 Lessons", "💻 Code Editor", "🤖 AI Assistant"]:
+        for text in ["📚 Lessons", "💻 Code Editor"]:
             btn = QPushButton(f"  {text}")
             btn.setFont(QFont("Segoe UI", 11))
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -1777,12 +1549,9 @@ class MainWindow(QMainWindow):
         self.lessons_page = LessonsPage(self._open_lesson)
         self.detail_page = LessonDetailPage(self._back, self._try_code)
         self.editor_page = EditorPage(self._set_status)
-        self.ai_page = AiPage(self._insert_ai_code)
-
         self.stack.addWidget(self.lessons_page)   # 0
         self.stack.addWidget(self.detail_page)    # 1
         self.stack.addWidget(self.editor_page)    # 2
-        self.stack.addWidget(self.ai_page)        # 3
 
         # Shortcuts
         QShortcut(QKeySequence("Ctrl+Return"), self, self.editor_page._run_code)
@@ -1812,7 +1581,6 @@ class MainWindow(QMainWindow):
         self.lessons_page.apply_theme()
         self.detail_page.apply_theme()
         self.editor_page.apply_theme()
-        self.ai_page.apply_theme()
 
     def _startup(self):
         self.sidebar._pulse_logo()
@@ -1828,8 +1596,6 @@ class MainWindow(QMainWindow):
             self.stack.slide_to(0)
         elif "Code Editor" in name:
             self.stack.slide_to(2)
-        elif "AI Assistant" in name:
-            self.stack.slide_to(3)
 
     def _open_lesson(self, idx):
         self.detail_page.set_lesson(idx)
@@ -1844,11 +1610,6 @@ class MainWindow(QMainWindow):
         self.stack.slide_to(2)
         self.sidebar.set_active("💻 Code Editor")
 
-    def _insert_ai_code(self, code):
-        self.editor_page.set_code(code)
-        self.stack.slide_to(2)
-        self.sidebar.set_active("💻 Code Editor")
-        self._set_status("  Code inserted from AI")
 
 
 # ─── Entry ───────────────────────────────────────────────────────────────────
