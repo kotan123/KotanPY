@@ -4,11 +4,6 @@
 
 A modern, feature-rich desktop application for learning Python — built with PyQt6. Includes 20 structured lessons, an advanced code editor with Smart Autocomplete, and 4 beautiful themes.
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
-![PyQt6](https://img.shields.io/badge/PyQt6-Desktop_App-green?logo=qt&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-yellow)
-![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows)
-![Author](https://img.shields.io/badge/By-Kotan123-red)
 
 ---
 
