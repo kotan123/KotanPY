@@ -1,8 +1,8 @@
 # PyLearn — By Kotan123
 
-**Interactive Python Learning Desktop App with AI Assistant**
+**Interactive Python Learning Desktop App**
 
-A modern, feature-rich desktop application for learning Python — built with PyQt6. Includes 20 structured lessons, an advanced code editor with IntelliJ-style autocomplete, a free AI coding assistant (PyLearn AI), and 4 beautiful themes.
+A modern, feature-rich desktop application for learning Python — built with PyQt6. Includes 20 structured lessons, an advanced code editor with IntelliJ-style autocomplete, and 4 beautiful themes.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
 ![PyQt6](https://img.shields.io/badge/PyQt6-Desktop_App-green?logo=qt&logoColor=white)
@@ -13,14 +13,6 @@ A modern, feature-rich desktop application for learning Python — built with Py
 ---
 
 ## Features
-
-### 🤖 AI Assistant (PyLearn AI)
-- **Free AI** — no API key required, no limits
-- **PyLearn AI** — built-in coding assistant powered by Pollinations.ai
-- **Multilingual** — responds in the same language you write (Russian, English, etc.)
-- **Code insertion** — click "Insert to Editor" to paste AI-generated code directly
-- **Conversation history** — full context-aware chat
-- **PyQt6 aware** — always generates correct PyQt6 code
 
 ### 💻 Code Editor (IDE)
 - **IntelliJ-style Autocomplete** — 400+ suggestions including:

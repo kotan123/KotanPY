@@ -5,11 +5,10 @@ A collection of open-source Python projects by **Kotan123**.
 ## Projects
 
 ### [PyLearn](./PyLearn) 🆕
-Interactive Python Learning Desktop App with built-in AI Assistant. Built with PyQt6.
+Interactive Python Learning Desktop App. Built with PyQt6.
 
 - **20 structured lessons** — from variables to data structures
 - **Advanced code editor** — IntelliJ-style autocomplete, syntax highlighting, bracket matching, multi-tab
-- **🤖 PyLearn AI** — free AI coding assistant (no API key needed), multilingual
 - **4 themes** — Midnight, Ocean, Sunset, Forest
 - **Built-in console** — run code with Ctrl+Enter
 
