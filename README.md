@@ -8,7 +8,7 @@ A collection of open-source Python projects by **Kotan123**.
 Interactive Python Learning Desktop App. Built with PyQt6.
 
 - **20 structured lessons** — from variables to data structures
-- **Advanced code editor** — IntelliJ-style autocomplete, syntax highlighting, bracket matching, multi-tab
+- **Advanced code editor** — smart autocomplete, syntax highlighting, bracket matching, multi-tab
 - **4 themes** — Midnight, Ocean, Sunset, Forest
 - **Built-in console** — run code with Ctrl+Enter
 
