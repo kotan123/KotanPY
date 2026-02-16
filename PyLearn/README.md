@@ -10,32 +10,10 @@ A modern, feature-rich desktop application for learning Python — built with Py
 ## Features
 
 ### 💻 Code Editor
-- **Smart Autocomplete** — 400+ suggestions including:
-  - Python keywords, built-in functions, exceptions, dunder methods
-  - String, list, dict, set, and file methods
-  - Standard library modules
-  - **30+ code snippets** (classes, functions, comprehensions, decorators, etc.)
-  - Identifiers extracted from your current code in real-time
-- **Tab to insert** — press `Tab` or `Enter` to accept a suggestion
-- **Syntax highlighting** — keywords, strings, numbers, comments, decorators, builtins
-- **Current line highlight** — always see where your cursor is
-- **Bracket matching** — highlights matching `()`, `[]`, `{}`
-- **Auto-indent** — automatically indents after `:`
-- **Toggle comment** — `Ctrl+/` to comment/uncomment selected lines
-- **Line numbers** — with active line number highlighting
-- **Multi-tab support** — open multiple files in tabs
-
-### 📁 File Operations
-- **New** (`Ctrl+N`) — create a new file tab
-- **Open** (`Ctrl+O`) — open any `.py` / `.pyw` file
-- **Save** (`Ctrl+S`) — save the current file
-- **Save As** — save with a new filename
-
-### ▶️ Console
-- **Run code** (`Ctrl+Enter`) — execute your code
-- **Colored output** — green for stdout, red for stderr
-- **Execution time** — displayed after each run
-- **Timeout protection** — 15-second timeout prevents infinite loops
+- Smart Autocomplete, syntax highlighting, bracket matching
+- Line numbers, auto-indent, toggle comment
+- Multi-tab support, file operations (New, Open, Save)
+- Built-in console with colored output and execution time
 
 ### 📚 20 Structured Lessons
 
