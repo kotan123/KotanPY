@@ -1020,7 +1020,7 @@ class LessonDetailPage(QWidget):
             self._typing_timer.stop()
 
 
-# ─── Editor Page (Advanced IDE) ─────────────────────────────────────────────
+# ─── Editor Page ─────────────────────────────────────────────────────────────
 
 class EditorPage(QWidget):
     def __init__(self, status_callback=None):

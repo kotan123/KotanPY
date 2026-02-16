@@ -9,7 +9,7 @@ A modern, feature-rich desktop application for learning Python — built with Py
 
 ## Features
 
-### 💻 Code Editor (IDE)
+### 💻 Code Editor
 - **Smart Autocomplete** — 400+ suggestions including:
   - Python keywords, built-in functions, exceptions, dunder methods
   - String, list, dict, set, and file methods
