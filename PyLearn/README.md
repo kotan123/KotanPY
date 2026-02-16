@@ -2,7 +2,7 @@
 
 **Interactive Python Learning Desktop App**
 
-A modern, feature-rich desktop application for learning Python — built with PyQt6. Includes 20 structured lessons, an advanced code editor with Smart Autocomplete, and 4 beautiful themes.
+A modern, feature-rich desktop application for learning Python — built with PyQt6. Includes 20 structured lessons, a code editor, and 4 beautiful themes.
 
 
 ---
@@ -10,10 +10,10 @@ A modern, feature-rich desktop application for learning Python — built with Py
 ## Features
 
 ### 💻 Code Editor
-- Smart Autocomplete, syntax highlighting, bracket matching
+- Syntax highlighting, bracket matching
 - Line numbers, auto-indent, toggle comment
 - Multi-tab support, file operations (New, Open, Save)
-- Built-in console with colored output and execution time
+- Built-in console with colored output
 
 ### 📚 20 Structured Lessons
 
@@ -100,8 +100,7 @@ pyinstaller --onefile --windowed --icon=icon.ico --name=PyLearn --add-data "icon
 | `Ctrl+O` | Open file |
 | `Ctrl+N` | New file |
 | `Ctrl+/` | Toggle comment |
-| `Tab` | Accept autocomplete |
-| `Escape` | Dismiss autocomplete |
+| `Tab` | Indent |
 
 ---
 

@@ -1,6 +1,6 @@
 """
 PyLearn v1.0 — Interactive Python Learning App
-Advanced code editor with autocomplete, file operations, and 20 lessons.
+Advanced code editor with file operations and 20 lessons.
 """
 
 import sys, subprocess, re, math, os, random, time, io, threading, shutil
@@ -8,13 +8,13 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QTextEdit, QPlainTextEdit, QScrollArea,
     QStackedWidget, QFrame, QGraphicsDropShadowEffect, QSplitter,
-    QGraphicsOpacityEffect, QSizePolicy, QCompleter, QFileDialog,
+    QGraphicsOpacityEffect, QSizePolicy, QFileDialog,
     QLineEdit, QStatusBar, QTabBar
 )
 from PyQt6.QtCore import (
     Qt, QPropertyAnimation, QEasingCurve, QTimer, QSize,
     QParallelAnimationGroup, QPoint, QRect, QSequentialAnimationGroup,
-    pyqtProperty, QStringListModel, QEvent
+    pyqtProperty, QEvent
 )
 from PyQt6.QtGui import (
     QFont, QColor, QPalette, QSyntaxHighlighter, QTextCharFormat,
@@ -81,160 +81,6 @@ def set_theme(name):
     global T
     T = THEMES[name]
 
-
-# ─── Autocomplete word lists ────────────────────────────────────────────────
-
-PY_KEYWORDS = [
-    "and","as","assert","async","await","break","class","continue","def","del",
-    "elif","else","except","finally","for","from","global","if","import","in",
-    "is","lambda","nonlocal","not","or","pass","raise","return","try","while",
-    "with","yield","True","False","None","match","case",
-]
-PY_BUILTINS = [
-    "print","input","len","range","int","str","float","list","dict","tuple",
-    "set","bool","type","isinstance","issubclass","enumerate","zip","map",
-    "filter","sorted","reversed","open","super","abs","max","min","sum",
-    "round","any","all","hex","bin","oct","ord","chr","format","hasattr",
-    "getattr","setattr","delattr","property","staticmethod","classmethod",
-    "vars","dir","id","repr","hash","callable","iter","next","slice",
-    "frozenset","bytearray","bytes","memoryview","complex","divmod","pow",
-    "exec","eval","compile","globals","locals","breakpoint","object",
-    "NotImplemented","Ellipsis","__import__","__name__","__file__",
-    "__doc__","__all__","__dict__","__class__","__slots__",
-]
-PY_EXCEPTIONS = [
-    "Exception","BaseException","ArithmeticError","AssertionError",
-    "AttributeError","BlockingIOError","BrokenPipeError","BufferError",
-    "BytesWarning","ChildProcessError","ConnectionAbortedError",
-    "ConnectionError","ConnectionRefusedError","ConnectionResetError",
-    "DeprecationWarning","EOFError","EnvironmentError","FileExistsError",
-    "FileNotFoundError","FloatingPointError","FutureWarning","GeneratorExit",
-    "IOError","ImportError","ImportWarning","IndentationError","IndexError",
-    "InterruptedError","IsADirectoryError","KeyError","KeyboardInterrupt",
-    "LookupError","MemoryError","ModuleNotFoundError","NameError",
-    "NotADirectoryError","NotImplementedError","OSError","OverflowError",
-    "PendingDeprecationWarning","PermissionError","ProcessLookupError",
-    "RecursionError","ReferenceError","ResourceWarning","RuntimeError",
-    "RuntimeWarning","StopAsyncIteration","StopIteration","SyntaxError",
-    "SyntaxWarning","SystemError","SystemExit","TabError","TimeoutError",
-    "TypeError","UnboundLocalError","UnicodeDecodeError","UnicodeEncodeError",
-    "UnicodeError","UnicodeTranslateError","UnicodeWarning","UserWarning",
-    "ValueError","Warning","ZeroDivisionError",
-]
-PY_DUNDERS = [
-    "__init__","__new__","__del__","__repr__","__str__","__format__",
-    "__bytes__","__hash__","__bool__","__len__","__length_hint__",
-    "__getitem__","__setitem__","__delitem__","__missing__","__iter__",
-    "__next__","__reversed__","__contains__","__add__","__radd__",
-    "__iadd__","__sub__","__rsub__","__isub__","__mul__","__rmul__",
-    "__imul__","__truediv__","__rtruediv__","__floordiv__","__mod__",
-    "__pow__","__and__","__or__","__xor__","__lshift__","__rshift__",
-    "__neg__","__pos__","__abs__","__invert__","__int__","__float__",
-    "__complex__","__index__","__round__","__enter__","__exit__",
-    "__call__","__eq__","__ne__","__lt__","__le__","__gt__","__ge__",
-    "__getattr__","__getattribute__","__setattr__","__delattr__",
-    "__get__","__set__","__delete__","__init_subclass__",
-    "__class_getitem__","__aenter__","__aexit__","__aiter__","__anext__",
-    "__await__","__set_name__","__slots__","__dict__","__doc__",
-    "__module__","__qualname__","__weakref__","__all__","__annotations__",
-]
-PY_STR_METHODS = [
-    "capitalize","casefold","center","count","encode","endswith",
-    "expandtabs","find","format","format_map","index","isalnum",
-    "isalpha","isascii","isdecimal","isdigit","isidentifier","islower",
-    "isnumeric","isprintable","isspace","istitle","isupper","join",
-    "ljust","lower","lstrip","maketrans","partition","removeprefix",
-    "removesuffix","replace","rfind","rindex","rjust","rpartition",
-    "rsplit","rstrip","split","splitlines","startswith","strip",
-    "swapcase","title","translate","upper","zfill",
-]
-PY_LIST_METHODS = [
-    "append","clear","copy","count","extend","index","insert",
-    "pop","remove","reverse","sort",
-]
-PY_DICT_METHODS = [
-    "clear","copy","fromkeys","get","items","keys","pop",
-    "popitem","setdefault","update","values",
-]
-PY_SET_METHODS = [
-    "add","clear","copy","difference","difference_update","discard",
-    "intersection","intersection_update","isdisjoint","issubset",
-    "issuperset","pop","remove","symmetric_difference",
-    "symmetric_difference_update","union","update",
-]
-PY_FILE_METHODS = [
-    "close","closed","fileno","flush","isatty","read","readable",
-    "readline","readlines","seek","seekable","tell","truncate",
-    "writable","write","writelines",
-]
-PY_STDLIB_MODULES = [
-    "os","sys","math","random","time","datetime","json","re","io",
-    "pathlib","collections","itertools","functools","operator",
-    "string","textwrap","unicodedata","struct","codecs","pprint",
-    "reprlib","enum","numbers","decimal","fractions","statistics",
-    "array","bisect","heapq","copy","types","typing","dataclasses",
-    "abc","contextlib","atexit","traceback","warnings","logging",
-    "unittest","doctest","argparse","shutil","glob","fnmatch",
-    "tempfile","csv","configparser","tomllib","hashlib","hmac",
-    "secrets","os.path","subprocess","socket","http","http.server",
-    "urllib","urllib.request","urllib.parse","email","html",
-    "xml","sqlite3","zipfile","tarfile","gzip","bz2","lzma",
-    "pickle","shelve","marshal","threading","multiprocessing",
-    "concurrent","concurrent.futures","asyncio","queue","sched",
-    "signal","select","selectors","tkinter","turtle",
-]
-PY_COMMON_ATTRS = [
-    "self","cls","args","kwargs","result","data","value","key",
-    "index","name","path","file","line","text","msg","error",
-    "count","size","length","width","height","start","end","step",
-    "parent","child","children","root","node","left","right",
-    "head","tail","prev","curr","temp","item","obj","func",
-    "callback","handler","listener","event","response","request",
-    "config","settings","options","params","headers","body",
-    "status","code","message","output","url","port","host",
-]
-# Snippets: shown as-is, user picks and Tab inserts
-PY_SNIPPETS = {
-    "def func():": "def func():\n    pass",
-    "def __init__(self):": "def __init__(self):\n    pass",
-    "class MyClass:": "class MyClass:\n    def __init__(self):\n        pass",
-    "if __name__ == \"__main__\":": "if __name__ == \"__main__\":\n    main()",
-    "for i in range():": "for i in range():\n    pass",
-    "while True:": "while True:\n    break",
-    "with open() as f:": "with open(\"file.txt\", \"r\") as f:\n    data = f.read()",
-    "try/except": "try:\n    pass\nexcept Exception as e:\n    print(e)",
-    "lambda x:": "lambda x: x",
-    "list comprehension": "[x for x in range()]",
-    "dict comprehension": "{k: v for k, v in items}",
-    "set comprehension": "{x for x in range()}",
-    "@property": "@property\ndef name(self):\n    return self._name",
-    "@staticmethod": "@staticmethod\ndef method():\n    pass",
-    "@classmethod": "@classmethod\ndef method(cls):\n    pass",
-    "async def":  "async def func():\n    await asyncio.sleep(1)",
-    "dataclass": "from dataclasses import dataclass\n\n@dataclass\nclass MyClass:\n    name: str\n    value: int = 0",
-    "enumerate()": "for i, item in enumerate(items):\n    print(i, item)",
-    "zip()": "for a, b in zip(list1, list2):\n    print(a, b)",
-    "map()": "result = list(map(func, iterable))",
-    "filter()": "result = list(filter(func, iterable))",
-    "sorted(key=)": "sorted(items, key=lambda x: x)",
-    "defaultdict": "from collections import defaultdict\ndd = defaultdict(list)",
-    "Counter": "from collections import Counter\nc = Counter(items)",
-    "namedtuple": "from collections import namedtuple\nPoint = namedtuple('Point', ['x', 'y'])",
-    "Path": "from pathlib import Path\np = Path('.')",
-    "json.dumps()": "import json\ndata = json.dumps(obj, indent=2)",
-    "json.loads()": "import json\nobj = json.loads(text)",
-    "datetime.now()": "from datetime import datetime\nnow = datetime.now()",
-    "argparse": "import argparse\nparser = argparse.ArgumentParser()\nparser.add_argument('name')\nargs = parser.parse_args()",
-    "logging.basicConfig": "import logging\nlogging.basicConfig(level=logging.INFO)\nlogger = logging.getLogger(__name__)",
-    "unittest.TestCase": "import unittest\n\nclass TestMyClass(unittest.TestCase):\n    def test_example(self):\n        self.assertEqual(1, 1)",
-}
-
-_ALL_WORDS = sorted(set(
-    PY_KEYWORDS + PY_BUILTINS + PY_EXCEPTIONS + PY_DUNDERS +
-    PY_STR_METHODS + PY_LIST_METHODS + PY_DICT_METHODS +
-    PY_SET_METHODS + PY_FILE_METHODS + PY_STDLIB_MODULES +
-    PY_COMMON_ATTRS + list(PY_SNIPPETS.keys())
-))
 
 
 # ─── Floating Particles Background ──────────────────────────────────────────
@@ -304,7 +150,10 @@ class PythonHL(QSyntaxHighlighter):
         super().__init__(parent)
         self.rules = []
         kw = QTextCharFormat(); kw.setForeground(QColor("#c678dd")); kw.setFontWeight(QFont.Weight.Bold)
-        for w in PY_KEYWORDS:
+        for w in ["and","as","assert","async","await","break","class","continue","def","del",
+                   "elif","else","except","finally","for","from","global","if","import","in",
+                   "is","lambda","nonlocal","not","or","pass","raise","return","try","while",
+                   "with","yield","True","False","None","match","case"]:
             self.rules.append((re.compile(rf"\b{w}\b"), kw))
         bf = QTextCharFormat(); bf.setForeground(QColor("#61afef"))
         for w in ["print","input","len","range","int","str","float","list","dict","tuple",
@@ -335,7 +184,7 @@ class PythonHL(QSyntaxHighlighter):
                 self.setFormat(m.start(), m.end() - m.start(), fmt)
 
 
-# ─── Code Editor with Line Numbers + Autocomplete ───────────────────────────
+# ─── Code Editor with Line Numbers ───────────────────────────────────────────
 
 class LineNumArea(QWidget):
     def __init__(self, editor):
@@ -360,45 +209,10 @@ class CodeEditor(QPlainTextEdit):
         self.hl = PythonHL(self.document())
         self._bracket_selections = []
 
-        # Autocomplete — Smart style
-        self._completer = QCompleter(_ALL_WORDS, self)
-        self._completer.setWidget(self)
-        self._completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
-        self._completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self._completer.setFilterMode(Qt.MatchFlag.MatchStartsWith)
-        self._completer.setMaxVisibleItems(8)
-        self._completer.activated.connect(self._insert_completion)
-        self._completer_model = QStringListModel(_ALL_WORDS, self)
-        self._completer.setModel(self._completer_model)
-        # Delay timer — don't pop up instantly
-        self._ac_timer = QTimer(self)
-        self._ac_timer.setSingleShot(True)
-        self._ac_timer.setInterval(250)
-        self._ac_timer.timeout.connect(self._try_complete)
-
-    def _update_completions(self):
-        """Update word list with identifiers from current code."""
-        code = self.toPlainText()
-        user_words = set(re.findall(r'\b[a-zA-Z_]\w{2,}\b', code))
-        all_words = sorted(set(_ALL_WORDS) | user_words)
-        self._completer_model.setStringList(all_words)
-
     def apply_theme(self):
         self.setStyleSheet(f"""QPlainTextEdit{{
             background:{T['bg2']};color:{T['text']};border:1px solid {T['border']};
             border-radius:8px;padding:8px;selection-background-color:#264f78;}}""")
-        popup = self._completer.popup()
-        popup.setStyleSheet(f"""QListView{{
-            background:{T['bg2']};color:{T['text']};
-            border:1px solid {T['accent']};border-radius:6px;
-            padding:3px;font-family:Consolas;font-size:11px;
-            outline:none;}}
-            QListView::item{{padding:3px 8px;border-radius:3px;}}
-            QListView::item:selected{{background:{T['accent']};color:white;}}
-            QListView::item:hover{{background:{T['bg3']};}}
-            QScrollBar:vertical{{background:{T['bg2']};width:6px;}}
-            QScrollBar::handle:vertical{{background:{T['bg3']};border-radius:3px;min-height:20px;}}
-            QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{{height:0;}}""")
         self._highlight_current_line()
 
     def _highlight_current_line(self):
@@ -460,37 +274,6 @@ class CodeEditor(QPlainTextEdit):
         self._highlight_current_line()
 
     def keyPressEvent(self, e):
-        popup = self._completer.popup()
-        # ── When popup is visible ──
-        if popup.isVisible():
-            if e.key() == Qt.Key.Key_Tab:
-                # Tab = accept top/selected completion
-                idx = popup.currentIndex()
-                if idx.isValid():
-                    self._insert_completion(idx.data())
-                elif self._completer.currentCompletion():
-                    self._insert_completion(self._completer.currentCompletion())
-                popup.hide()
-                return
-            elif e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-                idx = popup.currentIndex()
-                if idx.isValid():
-                    self._insert_completion(idx.data())
-                    popup.hide()
-                    return
-                popup.hide()
-                # Fall through to auto-indent
-            elif e.key() == Qt.Key.Key_Escape:
-                popup.hide()
-                return
-            elif e.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
-                # Let popup handle arrow keys
-                popup.keyPressEvent(e)
-                return
-            elif e.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right,
-                             Qt.Key.Key_Home, Qt.Key.Key_End):
-                popup.hide()
-
         # ── Ctrl+/ toggle comment ──
         if e.key() == Qt.Key.Key_Slash and e.modifiers() == Qt.KeyboardModifier.ControlModifier:
             self._toggle_comment()
@@ -508,11 +291,10 @@ class CodeEditor(QPlainTextEdit):
             self.insertPlainText(spaces)
             return
 
-        # ── Tab as indent (when popup NOT visible) ──
-        if e.key() == Qt.Key.Key_Tab and not popup.isVisible():
+        # ── Tab as indent ──
+        if e.key() == Qt.Key.Key_Tab:
             cursor = self.textCursor()
             if cursor.hasSelection():
-                # Indent selection
                 start = cursor.selectionStart()
                 end = cursor.selectionEnd()
                 cursor.setPosition(start)
@@ -527,58 +309,6 @@ class CodeEditor(QPlainTextEdit):
             return
 
         super().keyPressEvent(e)
-
-        # ── Trigger autocomplete with delay ──
-        if e.text() and (e.text().isalpha() or e.text() == '_'):
-            self._ac_timer.start()
-        elif not e.text() or not (e.text().isalnum() or e.text() == '_'):
-            self._ac_timer.stop()
-            popup.hide()
-
-    def _try_complete(self):
-        cursor = self.textCursor()
-        cursor.select(QTextCursor.SelectionType.WordUnderCursor)
-        prefix = cursor.selectedText()
-        if len(prefix) < 2:
-            self._completer.popup().hide()
-            return
-        self._update_completions()
-        self._completer.setCompletionPrefix(prefix)
-        cnt = self._completer.completionCount()
-        if cnt == 0:
-            self._completer.popup().hide()
-            return
-        if cnt == 1 and self._completer.currentCompletion() == prefix:
-            self._completer.popup().hide()
-            return
-        cr = self.cursorRect()
-        cr.setWidth(280)
-        self._completer.complete(cr)
-        # Auto-select first item
-        popup = self._completer.popup()
-        popup.setCurrentIndex(self._completer.completionModel().index(0, 0))
-
-    def _insert_completion(self, completion):
-        cursor = self.textCursor()
-        # Check if it's a snippet
-        if completion in PY_SNIPPETS:
-            # Delete the whole current line and insert snippet
-            cursor.select(QTextCursor.SelectionType.LineUnderCursor)
-            line_text = cursor.selectedText()
-            indent = len(line_text) - len(line_text.lstrip())
-            indent_str = " " * indent
-            snippet = PY_SNIPPETS[completion]
-            # Apply current indentation to each line of snippet
-            lines = snippet.split("\n")
-            indented = lines[0]
-            for ln in lines[1:]:
-                indented += "\n" + indent_str + ln
-            cursor.insertText(indent_str + indented)
-        else:
-            cursor.select(QTextCursor.SelectionType.WordUnderCursor)
-            cursor.insertText(completion)
-        self.setTextCursor(cursor)
-        self._completer.popup().hide()
 
     def _toggle_comment(self):
         cursor = self.textCursor()
