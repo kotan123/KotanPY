@@ -4,7 +4,7 @@ A collection of open-source Python projects by **Kotan123**.
 
 ## Projects
 
-### [PyLearn](./PyLearn) 🆕
+### [PyLearn](./PyLearn)
 Interactive Python Learning Desktop App. Built with PyQt6.
 
 - **20 structured lessons** — from variables to data structures
@@ -12,7 +12,7 @@ Interactive Python Learning Desktop App. Built with PyQt6.
 - **4 themes** — Midnight, Ocean, Sunset, Forest
 - **Built-in console** — run code with Ctrl+Enter
 
-### [PasswordGenerator](./PasswordGenerator)
+### [PasswordGenerator](./PasswordGenerator) 🆕
 Secure password generator with a dark space-themed UI. Built with CustomTkinter.
 
 - **Adjustable length** — 4 to 64 characters
