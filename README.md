@@ -12,6 +12,15 @@ Interactive Python Learning Desktop App. Built with PyQt6.
 - **4 themes** — Midnight, Ocean, Sunset, Forest
 - **Built-in console** — run code with Ctrl+Enter
 
+### [PasswordGenerator](./PasswordGenerator)
+Secure password generator with a dark space-themed UI. Built with CustomTkinter.
+
+- **Adjustable length** — 4 to 64 characters
+- **Character types** — uppercase, lowercase, digits, symbols
+- **Strength meter** — 4-segment visual bar
+- **Copy to clipboard** — one-click copy
+- **Recent history** — last 5 generated passwords
+
 ### [NeonSnake](./NeonSnake)
 A feature-rich Snake game built with Pygame. 10 color themes, 3 game modes, smooth animations, particle effects, powerups and combo system.
 
@@ -37,16 +46,20 @@ Two calculator apps:
 - Python 3.10+
 - `PyQt6` (for PyLearn)
 - `pygame` (for NeonSnake & MiniGamesArcade)
+- `customtkinter`, `Pillow`, `pyperclip` (for PasswordGenerator)
 - `tkinter` (for Smart Calculator, included with Python)
 
 ## Quick Start
 
 ```bash
 # Install dependencies
-pip install PyQt6 pygame
+pip install PyQt6 pygame customtkinter Pillow pyperclip
 
 # Run PyLearn
 python PyLearn/python_learner.py
+
+# Run Password Generator
+python PasswordGenerator/password_generator.pyw
 
 # Run Mini Games Arcade
 python MiniGamesArcade/mini_games.pyw
